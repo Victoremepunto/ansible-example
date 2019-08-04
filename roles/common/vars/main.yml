@@ -1,0 +1,4 @@
+---
+my_variable: "some-value"
+output_file: "/tmp/var_output.ansible"
+service_name: "foo"

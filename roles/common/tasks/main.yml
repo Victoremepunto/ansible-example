@@ -1,0 +1,69 @@
+---
+# file: roles/common/tasks/main.yml
+
+- name: "Set variable value into local file and trigger restart of service {{ service_name }}"
+  block: 
+    - name: "Check that {{ output_file }} exists"
+      stat:
+        path: "{{ output_file }}"
+      register: original_file
+    - name: "Create the backup file {{ output_file }}.bck in case of rollback"
+      copy:
+        src: "{{ output_file }}"
+        dest: "{{ output_file }}.bck"
+      when: original_file.stat.exists == True
+    - name: Update file contents with variable
+      copy:
+        content: "{{ my_variable }}"
+        dest: "{{ output_file }}"
+      register: variable_content_update
+    - name: "Restart {{ service_name }} service"
+      service:
+        name: "{{ service_name }}"
+        state: restarted
+      when: variable_content_update is changed
+      become: yes
+  rescue:
+    - debug:
+        msg: "Caught error on updating / restarting the service, restoring original file contents"
+    - name: "Remove original file on first run error"
+      file:
+        path: "{{ output_file }}"
+        state: absent
+      when: original_file.stat.exists == False
+    - name: Rollback file to previous value
+      copy:
+        src: "{{ output_file }}.bck"
+        dest: "{{ output_file }}"
+      when: original_file.stat.exists == True
+    - name: Fail
+      fail: msg="The operation failed!"
+  always:
+    - name: Remove backup file
+      file:
+        path: "{{ output_file }}.bck"
+        state: absent
+#- name: Restart service
+#  command: "/bin/echo restarting service!"
+#  when: variable_content.changed
+
+#- name: be sure ntp is installed
+#  yum:
+#    name: ntp
+#    state: present
+#  tags: ntp
+#
+#- name: be sure ntp is configured
+#  template:
+#    src: ntp.conf.j2
+#    dest: /etc/ntp.conf
+#  notify:
+#    - restart ntpd
+#  tags: ntp
+#
+#- name: be sure ntpd is running and enabled
+#  service:
+#    name: ntpd
+#    state: started
+#    enabled: yes
+#  tags: ntp

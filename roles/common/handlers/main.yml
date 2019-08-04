@@ -1,0 +1,8 @@
+---
+# DEPRECATED - left for illustrative example
+# file: roles/common/handlers/main.yml
+- name: "Restart {{ service_name }} service"
+  service:
+    # name: httpd
+    name: "{{ service_name }}"
+    state: restarted
