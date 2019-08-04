@@ -2,6 +2,20 @@
 
 This is an example Ansible project that aims to show how to create a simple playbook that handles a service restart based on a variable change.
 
+TL;DR: Run with : 
+
+```
+$ ansible-playbook -i hosts main.yml --extra-vars "my_variable=version-0.0.1" --ask-become-pass
+```
+
+# Pre-requisites
+
+A service `myservice` should be created in advance on the hosts included on the inventory file (this is the localhost by default). This service will be the target service for the restart task, though the name can be configured using the variable `service_name`  
+
+A template grabbed from [Fedora project documentation website](https://docs.fedoraproject.org/en-US/quick-docs/understanding-and-administering-systemd/) has been used to setup a dummy service, and is also included on this project [here](resources/myservice.service)
+
+# Brief in-depth explanation
+
 A variable named after `my_variable` is used to define a string, that will be stored in a local file on the path specified by the `output_file` variable.
 
 Default value for `output_file` is `/tmp/var_output.ansible`.
