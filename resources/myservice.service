@@ -1,0 +1,10 @@
+[Unit]
+Description=My custom service
+Requires=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sleep infinity
+
+[Install]
+WantedBy=multi-user.target
